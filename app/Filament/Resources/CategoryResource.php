@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -59,7 +60,16 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('name')
+                    ->label(__('Nombre'))
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (Category $category) => $category->description),
+                
+                /* TextColumn::make('description')
+                    ->label(__('Descripcion'))
+                    ->sortable() */
+                    
             ])
             ->filters([
                 //
@@ -75,7 +85,7 @@ class CategoryResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->emptyStateDescription(__('No hay categorias registradas'));
+            ->emptyStateDescription(__('No hay categorias disponibles'));
     }
     
     public static function getRelations(): array

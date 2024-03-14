@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -12,8 +13,15 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -46,6 +54,9 @@ class ProductResource extends Resource
                     ->image()
                     ->maxSize(4096)
                     ->placeholder(__('Imagen del producto'))
+                    ->directory('form-attachments')
+                    ->visibility('private')
+                    ->preserveFilenames()
                     ->columnSpanFull(),
                 
                 Grid::make()
@@ -85,13 +96,41 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('image')
+                    ->label(__('Imagen')),
+                TextColumn::make('name')
+                    ->label(__('Nombre'))
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (Product $product) => $product->description),
+                TextColumn::make('price')
+                    ->label(__('Precio'))
+                    ->money('ARG')
+                    ->sortable(),
+                TextColumn::make('category.name')
+                    ->label(__('Categoria'))
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label(__('Creado'))
+                    ->sortable()
+                    ->date('d/m/Y H:i'),
+                TextColumn::make('updated_at')
+                    ->label(__('Actualizado'))
+                    ->sortable()
+                    ->date('d/m/Y H:i')
             ])
             ->filters([
-                //
+                SelectFilter::make('category_id')
+                    ->relationship('category','name')
+                    ->label(__('Categoria'))
+                    /* ->searchable(), */
             ])
             ->actions([
+                
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -104,6 +143,24 @@ class ProductResource extends Resource
             ->emptyStateDescription(__('No hay productos disponibles'));
     }
     
+    public static function infolist(Infolist $infolist) : Infolist
+    {
+        return $infolist
+            ->schema([
+                ImageEntry::make('image')
+                    ->hiddenLabel()
+                    ->columnSpanFull(),
+                Section::make()->schema([
+                    TextEntry::make('name')
+                        ->label(__('Nombre')),
+                    TextEntry::make('price')
+                        ->label(__('Precio'))->money('ARG'),
+                    TextEntry::make('category.name')
+                        ->label(__('Categoria')),
+                ])->columns(3)
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [

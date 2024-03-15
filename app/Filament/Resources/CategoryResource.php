@@ -24,11 +24,13 @@ class CategoryResource extends Resource
 
     //protected static ?string $navigationLabel = 'Custom Navigation Label';
 
+    // Metodo para agrupar los navegadores
     public static function getNavigationGroup(): ?string
     {
         return __('Almacén');
     }
 
+    // Metodo para llamar de la forma que yo le diga
     public static function getLabel(): ?string
     {
         return __('Categoría');

@@ -143,6 +143,8 @@ class ProductResource extends Resource
             ->emptyStateDescription(__('No hay productos disponibles'));
     }
     
+    //Metodo que Visualiza la informacion del producto (se abre un modal)
+
     public static function infolist(Infolist $infolist) : Infolist
     {
         return $infolist
